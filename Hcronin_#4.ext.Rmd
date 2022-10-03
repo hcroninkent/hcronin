@@ -1,0 +1,50 @@
+---
+title: "Cronin_#2"
+author: "Hannah Cronin"
+date: "2022-10-03"
+output: html_document
+---
+
+```{r}
+library(lpSolve)
+library(lpSolveAPI)
+```
+
+```{r}
+# 0 constraints / 9 variables
+factory = make.lp(0,9)
+```
+
+```{r}
+set.objfn(factory, c(420, 360, 300, 420, 360, 300 ,420, 360, 300))
+lp.control(factory, sense = 'max')
+add.constraint(factory, c(1,1,1,0,0,0,0,0,0), "<=",750) #capacity plant 1
+add.constraint(factory, c(0,0,0,1,1,1,0,0,0), "<=",900) #capacity plant 2
+add.constraint(factory, c(0,0,0,0,0,0,1,1,1), "<=",450) #capacity plant 3
+add.constraint(factory, c(20,15,12,0,0,0,0,0,0), "<=",13000) #space limit plant 1
+add.constraint(factory, c(0,0,0,20,15,12,0,0,0), "<=",12000) #space limit plant 2
+add.constraint(factory, c(0,0,0,0,0,0,20,15,12), "<=",5000) #space limit plant 3
+add.constraint(factory, c(1,0,0,1,0,0,1,0,0), "<=",900) #demand large
+add.constraint(factory, c(0,1,0,0,1,0,0,1,0), "<=",1200) #demand medium
+add.constraint(factory, c(0,0,1,0,0,1,0,0,1), "<=",750) #demand small
+```
+```{r}
+Rownames = c('P1L', 'P1M', 'P1S', 'P2L', 'P2M', 'P2S', 'P3L', 'P3M', 'P3S')
+Colnames = c('P1L', 'P1M', 'P1S', 'P2L', 'P2M', 'P2S', 'P3L', 'P3M', 'P3S')
+dimnames(factory) = list(Rownames, Colnames)
+```
+
+```{r}
+factory
+write.lp(factory, filename = 'cronin.lp', type = 'lp')
+```
+
+```{r}
+solve(factory)
+get.objective(factory)
+get.variables(factory)
+get.constraints(factory)
+```
+Solution is = 350P1L + 400P1M + 0P1S + 0P2L + 400P2M + 500P2S + 0P3L + 133P3M + 250P3S
+
+
