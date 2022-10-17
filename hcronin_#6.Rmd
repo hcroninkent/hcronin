@@ -1,0 +1,74 @@
+---
+title: "hcronin_#6"
+author: "Hannah Cronin"
+date: "2022-10-17"
+output: html_document
+---
+
+```{r}
+library(lpSolve)
+library(lpSolveAPI)
+```
+1) Formulate problem
+- (Combined the cost of shipping/production for each decision variable)
+Objective function-
+min(Z) = 622 PA1 + 614PA2 + 630 PA3  + 641 PB1 + 645 PB2 + 649 PB3 
+
+Constraints- 
+PA1 + PA2 + PA3 <= 100 #plant A capacity
+PB1 + PB2 + PB3 <= 120 #plant B capacity
+PA1 + PB1 >= 80 #WH1 demand
+PA2 + PB2 >= 60 #WH2 demand
+PA3 + PB3 >= 70 #WH3 demand
+
+
+```{r}
+# 0 constraints, 8 variables
+shipping = make.lp(0,6)
+```
+
+```{r}
+set.objfn(shipping, c(622, 614, 630, 641, 645, 649)) #objective function
+lp.control(shipping, sense = 'min' ) #setting problem to min to minimize costs
+```
+
+```{r}
+add.constraint(shipping, c(1,1,1,0,0,0), "<=", 100) #PlantA Capacity
+add.constraint(shipping, c(0,0,0,1,1,1), "<=", 120) #PlantB Capacity
+add.constraint(shipping, c(1,0,0,1,0,0), ">=", 80) #WH1 Demand
+add.constraint(shipping, c(0,1,0,0,1,0), ">=", 60) #WH2 Demand
+add.constraint(shipping, c(0,0,1,0,0,1), ">=", 70) #WH3 Demand
+```
+
+```{r}
+Rownames = c('P1C', 'PAC', 'WH1D', 'WH2', 'WH3D')
+Colnames = c('PA1', 'PA2', 'PA3', 'PB1', 'PB2', 'PB3')
+dimnames(shipping) = list(Rownames, Colnames)
+```
+
+```{r}
+shipping #formula model
+```
+
+```{r}
+solve(shipping)
+```
+
+```{r}
+get.objective(shipping)
+```
+
+```{r}
+get.variables(shipping)
+```
+
+```{r}
+get.constraints(shipping)
+```
+ # Answer is: min(Z) = 0 PA1 + 60 PA2 + 40 PA3 + 80 PB1 + 0 PB2 + 30 PB3
+ # There is an unused capacity of 10 units left in Plant B - however producing more of any unit would exceed  # demand for any available warehouse.
+ 
+```{r}
+ write.lp(shipping, filename = 'shipping.lp', type = 'lp')
+```
+ 
