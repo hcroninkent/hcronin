@@ -1,0 +1,84 @@
+---
+title: "assignment8"
+author: "Hannah Cronin"
+date: "2022-10-30"
+output: html_document
+---
+
+```{r}
+library(Benchmarking)
+library(lpSolveAPI)
+library(quadprog)
+library(ucminf)
+```
+
+#setting up matrix
+```{r}
+inputs = matrix(c(150, 400, 320, 520, 350, 320, 0.2, 0.7, 1.2, 2.0, 1.2, 0.7), ncol = 2) #inputs
+outputs = matrix(c(14000, 14000, 42000, 28000, 19000, 14000, 3500, 21000, 10500, 42000, 25000, 15000), ncol = 2)
+colnames(inputs) <- c("staff hours/day","supplies/day")
+colnames(outputs) <- c("reimbursed", "privately paid")
+```
+
+#VRS
+```{r}
+hv_vrs =  dea(inputs, outputs, RTS = "vrs") #solve lp problem
+e_vrs = eff(hv_vrs)
+e_vrs
+peers(hv_vrs)
+lambda(hv_vrs)
+```
+#FDH
+```{r}
+hv_fdh =  dea(inputs, outputs, RTS = "fdh") #solve lp problem
+e_fdh = eff(hv_fdh)
+e_fdh
+peers(hv_fdh)
+lambda(hv_fdh)
+```
+#CRS
+```{r}
+hv_crs =  dea(inputs, outputs, RTS = "crs") #solve lp problem
+e_crs = eff(hv_crs)
+e_crs
+peers(hv_crs)
+lambda(hv_crs)
+```
+#IRS
+```{r}
+hv_irs =  dea(inputs, outputs, RTS = "irs") #solve lp problem
+e_irs = eff(hv_irs)
+e_irs
+peers(hv_irs)
+lambda(hv_irs)
+```
+#DRS
+```{r}
+hv_drs =  dea(inputs, outputs, RTS = "drs") #solve lp problem
+e_drs = eff(hv_drs)
+e_drs
+peers(hv_drs)
+lambda(hv_drs)
+```
+#FRH
+```{r}
+hv_frh =  dea(inputs, outputs, RTS = "add") #solve lp problem
+e_frh = eff(hv_frh)
+e_frh
+peers(hv_frh)
+lambda(hv_frh)
+```
+
+```{r}
+table = cbind(inputs, outputs, e_vrs, e_fdh, e_crs, e_irs, e_drs, e_frh)
+table
+```
+# Under VRS, all facilities but 6 are efficient, which operates at 89.63% efficiency. DMU(6) is peers with 1,2,5 with weights of.40, .34, and .26.
+# 
+# Under FDH, all DMUs are efficient. There are no peers.
+# Under CRS, DMU(1-4) are efficent, and DMUs(5,6) is 97.8% and 86.74% efficient respectively. DMU(5,6) have peer units with DMU(1,2,4) with weights of .2, .08, and .54 (DMU(5)) and .34, .39, and .13 (DMU(6)).
+# Under IRS, all DMUs except DMU(6) are efficient, with DMU(6) having an efficiency of 89.63%. DMU(6) has peer units with DMU(1,2,5) with weights of .4, .34, .26.
+# Under DRS, DMU(1-4) are efficent, and DMUs(5,6) is 97.8% and 86.74% efficient respectively. DMU(5,6) have peer units with DMU(1,2,4) with weights of .2, .08, and .54 (DMU(5)) and .34, .39, and .13 (DMU(6)).
+# Under FRH,  all DMUs are efficient. There are no peers.
+
+#FRH or FDH are the most suitable models for Hope Valley.
