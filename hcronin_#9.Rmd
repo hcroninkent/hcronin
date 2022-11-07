@@ -1,0 +1,68 @@
+---
+title: "assignment_9"
+author: "Hannah Cronin"
+date: "2022-11-06"
+output: html_document
+---
+
+1/2.
+Maximize: Z = P(Total Profit) - 6(Change in employement level) - 3(Decrease in next year's earning)
+Maximize: Z = P - 6y1+ - 6y1- -3y2-
+
+x1 = Product1
+x2 = Product2
+x3 = Product3
+y1+ = increase in employment
+y1- = decrease in employment
+y2- = decrease in next year's earnings
+
+
+(y1+ - y1-) = 6x1 + 4x2 + 5x3 - 50
+(y2+ - y2-) = 8x1 + 7x2 + 5x3 - 75
+y2+ = 0 #no harm in exceeding 75
+P = 20x1 + 15x2 + 25x3
+
+Maximize: Z = P - 6y1+ - 6y1- -3y2-
+
+6x1 + 4x2 + 5x3 - (y1+ - y1-) = 50
+8x1 + 7x2 + 5x3 - (y2+ - y2-) = 75
+P = 20x1 + 15x2 + 25x3
+xj >= 0, yi+ >=0, yi- >= 0, y2- < Z
+
+
+#3 #I tried to use an LP file, however I could not get my computer to read. I will append to assignment anyways.
+```{r}
+# 6 decision variables, 0 constraints
+library(lpSolveAPI)
+decision = make.lp(0,6)
+```
+
+```{r}
+set.objfn(decision, c(20,15,25,-6,-6,-3))
+lp.control(decision, sense = 'max')
+add.constraint(decision, c(6,4,5,1,-1,0), "=", 50) #constraint y1
+add.constraint(decision, c(8,7,5,0,0,1), ">=", 75) #constraint y2
+```
+
+```{r}
+Rownames = c('PX1','PX2','PX3','Y1M','Y1P','Y2M')
+Colnames = c('y1','y2')
+```
+
+```{r}
+decision
+```
+
+```{r}
+solve(decision)
+get.objective(decision)
+get.variables(decision)
+get.constraints(decision)
+```
+Maximum = 225 = 0x1 + 0x2 + 15x3 - 0y1m - 25y1p + 0 y2m
+225 = 15(25) - 25(6)
+
+Profit = 225 million dollars
+Product 3 = 15 units
+Labor = Change (grow)
+Earnings = no decrease
