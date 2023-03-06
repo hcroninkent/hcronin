@@ -1,0 +1,90 @@
+---
+title: "Assignment1"
+author: "Hannah Cronin"
+date: "2023-03-05"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+## Loading in required packages.
+library(ISLR)  
+## Warning: package 'ISLR' was built under R version 4.0.3  
+library(dplyr)  
+## Warning: package 'dplyr' was built under R version 4.0.2  
+## Warning: replacing previous import 'vctrs::data_frame' by 'tibble::data_frame'  
+## when loading 'dplyr'  
+##   
+## Attaching package: 'dplyr'  
+## The following objects are masked from 'package:stats':  
+##   
+##     filter, lag  
+## The following objects are masked from 'package:base':  
+##   
+##     intersect, setdiff, setequal, union  
+library(glmnet)  
+## Warning: package 'glmnet' was built under R version 4.0.2  
+## Loading required package: Matrix  
+## Loaded glmnet 4.0-2  
+library(caret)  
+## Warning: package 'caret' was built under R version 4.0.3  
+## Loading required package: lattice  
+## Loading required package: ggplot2  
+## Warning: package 'ggplot2' was built under R version 4.0.2 
+```
+
+```{r}
+## Creating dataset with only the fields needed
+Carseats_Filtered <- Carseats %>% select("Sales", "Price", 
+"Advertising","Population","Age","Income","Education")  
+features = Carseats_Filtered %>% select("Price","Advertising","Population","Age","Income","Education")  ##features
+target = Carseats_Filtered %>% select("Sales") ##target
+x = as.matrix(features) ##features into matrix
+y = as.matrix(target) ##target into matrix
+```
+
+```{r}
+## scaling data
+preprocessParams<-preProcess(x, method = c("center", "scale"))
+x <- predict(preprocessParams, x)
+summary(x) #to verify means are 0
+```
+
+```{r}
+set.seed(100) #to verify repeatability
+cv_model = cv.glmnet(x, y, alpha = 1) #to get best lambda
+best_lambda <- cv_model$lambda.min 
+best_lambda
+plot(cv_model) 
+```
+
+```{r}
+best_model <- glmnet(x, y, alpha = 1, lambda = best_lambda)
+coef(best_model) #coefficients of best lambda
+cat("This is the best lambda value according to my model:", best_lambda)
+```
+
+```{r}
+qb3a_model <- glmnet(x, y, alpha = 1, lambda = 0.01) #QB3
+coef(qb3a_model)
+```
+
+```{r}
+qb3b_model <- glmnet(x, y, alpha = 1, lambda = 0.1) #QB3
+coef(qb3b_model)
+```
+
+```{r}
+set.seed(100)
+qb4_model = cv.glmnet(x, y, alpha = 0.6) #QB4
+qb4_lambda <- qb4_model$lambda.min
+qb4_lambda
+coef(qb4_model)
+```
+
+
+
+
+
