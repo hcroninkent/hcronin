@@ -1,0 +1,47 @@
+---
+title: "ADM Assignment 2"
+author: "Hannah Cronin"
+date: "2023-04-09"
+output: html_document
+---
+
+```{r}
+library(ISLR)
+library(dplyr)
+library(glmnet)
+library(caret)
+library(rpart)
+library(rpart.plot)
+library(rsample)
+Carseats_Filtered <- Carseats %>% select("Sales", "Price",
+"Advertising","Population","Age","Income","Education")
+```
+QB1.
+```{r}
+set.seed(100)
+Model_1 = rpart (Sales~., data = Carseats_Filtered, method = 'anova')
+plot(Model_1)
+text(Model_1)
+```
+QB2.
+```{r}
+Model_2 = rpart (Sales~., data = Carseats_Filtered, method = 'anova', control = rpart.control(minsplit=60)) #making model less complex
+plot(Model_2)
+text(Model_2)
+```
+QB3.
+```{r}
+set.seed(123)
+split = initial_split(Carseats_Filtered, prop = .7)
+train = training(split)
+test = testing(split)
+Model_Caret_1 = train(Sales~., data = train, method = 'rf', trControl = trainControl(method = "oob"))
+print(Model_Caret_1)
+```
+QB4.
+```{r}
+set.seed(123)
+Model_Caret_2 = train(Sales~., data = train, method = 'rf', trControl = trainControl(method = "repeatedcv", number = 5, repeats = 3), tuneGrid = expand.grid(mtry = 2:5))
+print(Model_Caret_2)
+```
+
