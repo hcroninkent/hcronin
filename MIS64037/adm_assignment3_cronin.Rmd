@@ -1,0 +1,102 @@
+---
+title: "Cronin ADM Assignment 3"
+author: "Hannah Cronin"
+date: "2023-04-28"
+output: html_document
+---
+
+```{r}
+library(ISLR)
+## Warning: package 'ISLR' was built under R version 4.0.3
+library(dplyr)
+## Warning: package 'dplyr' was built under R version 4.0.2
+## Warning: replacing previous import 'vctrs::data_frame' by 'tibble::data_frame'
+## when loading 'dplyr'
+##
+## Attaching package: 'dplyr'
+## The following objects are masked from 'package:stats':
+##
+## filter, lag
+## The following objects are masked from 'package:base':
+##
+## intersect, setdiff, setequal, union
+library(glmnet)
+## Warning: package 'glmnet' was built under R version 4.0.2
+## Loading required package: Matrix
+## Loaded glmnet 4.0-2
+library(caret)
+## Warning: package 'caret' was built under R version 4.0.3
+## Loading required package: lattice
+## Loading required package: ggplot2
+## Warning: package 'ggplot2' was built under R version 4.0.2
+library(kernlab)
+library(rpart)
+library(rpart.plot)
+library(rsample)
+library(neuralnet)
+```
+
+```{r}
+Carseats_Filtered <- Carseats %>% select("Sales", "Price",
+"Advertising","Population","Age","Income","Education")
+```
+
+```{r}
+trctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 3)
+set.seed(2018)
+svm_Linear <- train(Sales ~., data = Carseats_Filtered, method = "svmLinear",
+trControl=trctrl,
+preProcess = c("center", "scale"),
+tuneLength = 10)
+```
+
+```{r}
+svm_Linear
+```
+------------------
+```{r}
+grid <- expand.grid(C = c(0.1,0.5,1,10))
+```
+
+```{r}
+trctrl <- trainControl(method = "repeatedcv", number = 5, repeats = 2)
+set.seed(2018)
+svm_Linear2 <- train(Sales ~., data = Carseats_Filtered, method = "svmLinear",
+trControl=trctrl,
+preProcess = c("center", "scale"),
+tuneGrid = grid,
+tuneLength = 10)
+```
+
+```{r}
+svm_Linear2
+```
+----------------------------------
+```{r}
+Scale_Model = preProcess(Carseats_Filtered,method = c("range"))
+Carseats_Scaled=predict(Scale_Model,Carseats_Filtered)
+summary(Carseats_Scaled)
+```
+
+```{r}
+set.seed(2018)
+numFolds <- trainControl(method = 'cv', number = 10, verboseIter = FALSE) # 10 fold CV
+fit <- train(Sales ~ Price + Advertising + Population + Age + Income + Education, data = Carseats_Scaled,
+method = 'nnet', trControl = numFolds)
+```
+
+```{r}
+summary(fit)
+```
+
+```{r}
+input = matrix(c(9, 6.54, 124, 0, 76, 110, 10), ncol=7)
+colnames(input) = c('Sales','Price','Population','Advertising', 'Age', 'Income', 'Education')
+prediction = predict(fit, input)
+```
+
+```{r}
+prediction
+```
+
+
